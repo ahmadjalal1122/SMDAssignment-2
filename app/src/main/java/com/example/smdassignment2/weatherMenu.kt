@@ -27,11 +27,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,38 +62,44 @@ class weatherMenu : ComponentActivity() {
 }
 @Composable
 private fun NewPageContent() {
+    var selectedRowIndex by remember { mutableStateOf(-1) }
+
     LazyColumn {
         item {
-            // Top Section
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
-                    modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 8.dp)
+                    modifier = Modifier.padding(8.dp)
                 ) {
-                    Image(
-                painter = painterResource(R.drawable.arrowleft),
-                contentDescription = "Back Arrow",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable {
-                        // Handle back arrow click here
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.arrowleft),
+                            contentDescription = "Back Arrow",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable {
+                                    // Handle back arrow click here
+                                }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "LOCATIONS",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-            )
                     Text(
-                        text = "LOCATIONS",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Some Text Here",
-                        fontSize = 18.sp
+                        text = "You are getting results from popular places in india",
+                        fontSize = 18.sp,
+                        modifier=Modifier.width(150.dp)
+
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // "Choose Place" button with light grey background
                     Button(
                         onClick = { /* Handle button click here */ },
                         shape = RoundedCornerShape(16.dp),
@@ -102,7 +111,6 @@ private fun NewPageContent() {
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-
                 // Right Subsection
                 Box(
                     modifier = Modifier
@@ -110,69 +118,82 @@ private fun NewPageContent() {
                         .background(Color.LightGray)
                         .height(220.dp), // Adjust the height as needed
                     contentAlignment = Alignment.Center
+//                    verticalArrangement = Arrangement.Center
+//                    horizontalAlignment = Arrangement.Center
                 ) {
 
-
-                    Text(
-                        text = "Add Place",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
-                    )
                     Image(
-                        painter = painterResource(R.drawable.arrowleft),
-                        contentDescription = "Plus Icon",
+                        painter = painterResource(R.drawable.plus),
+                        contentDescription = null,
                         modifier = Modifier
                             .size(24.dp)
                             .padding(8.dp)
-                            .clickable {
-                                // Handle plus icon click here
-                            }
+                    )
+                    Text(
+                        text = "Add Place",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
                     )
                 }
             }
         }
 
-        // List of Sections
         items(4) { sectionIndex ->
-            section(sectionIndex)
+            section(sectionIndex, selectedRowIndex) {
+                selectedRowIndex = it
+            }
         }
     }
 }
 
 @Composable
-private fun section(sectionIndex: Int) {
+private fun section(sectionIndex: Int, selectedRowIndex: Int, onItemClick: (Int) -> Unit) {
+    val purple500 = colorResource(id = R.color.purple_500)
+    val backgroundColor = if (sectionIndex == selectedRowIndex) {
+        purple500
+    } else {
+        Color.Transparent
+    }
+
+    val textColor = if (sectionIndex == selectedRowIndex) {
+        Color.White
+    } else {
+        Color.Black // Change this color as needed
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .clickable {
+                onItemClick(sectionIndex)
+            }
+            .background(backgroundColor)
     ) {
-        // City
-        Text(text = "Mumbai", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+        Text(text = "Mumbai", fontSize = 18.sp,
+            modifier= Modifier.padding(8.dp),
+            fontWeight = FontWeight.Medium, color = textColor)
+        Text(text = "Humidity: 51%",
+            modifier= Modifier.padding(8.dp),
+            fontSize = 18.sp, fontWeight = FontWeight.Medium, color = textColor)
 
-        // Humidity
-        Text(text = "Humidity: 51%", fontSize = 18.sp, fontWeight = FontWeight.Medium)
-
-        // 28, Sunny (right-aligned)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "28,Sunny",
+                text = "28, Sunny",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.End,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).padding(8.dp),
+                color = textColor,
             )
         }
 
-        // Add spacing between sections
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview2() {
